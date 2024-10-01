@@ -173,6 +173,31 @@ function updateSimulation() {
             ctx.arc(screenX + 5, canvas.height / 2 + y_pixel, 5, 0, 2 * Math.PI);
             ctx.fillStyle = wavelengthToColor(wavelengthSlider.value, 1); // intensity 1
             ctx.fill();
+            // Removed the stroke as per your request
+            // ctx.strokeStyle = 'black';
+            // ctx.stroke();
+        }
+    }
+
+    // Draw minima as small 'X' marks on the screen
+    for (let m = -maxOrder; m <= maxOrder; m++) {
+        // Calculate position of m-th minimum
+        const y_m = ((m + 0.5) * wavelength * screenDistance) / slitSeparation; // in meters
+
+        // Convert y_m to pixel position
+        const y_pixel = y_m / 1e-3; // 1 pixel corresponds to 1 mm
+
+        // Check if y_pixel is within canvas
+        if (Math.abs(y_pixel) <= canvas.height / 2) {
+            // Draw 'X' at position
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(screenX + 2, canvas.height / 2 + y_pixel - 3);
+            ctx.lineTo(screenX + 8, canvas.height / 2 + y_pixel + 3);
+            ctx.moveTo(screenX + 2, canvas.height / 2 + y_pixel + 3);
+            ctx.lineTo(screenX + 8, canvas.height / 2 + y_pixel - 3);
+            ctx.stroke();
         }
     }
 }
