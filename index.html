@@ -299,12 +299,12 @@
 
         // Draw laser
         ctx.fillStyle = 'grey';
-        ctx.fillRect(laserX - 20, laserY - 20, 20, 40);
+        ctx.fillRect(laserX - 20, laserY - 15, 20, 30);
 
         // Label for Laser
         ctx.fillStyle = 'black';
         ctx.font = '16px Arial';
-        ctx.fillText('Laser', laserX - 25, laserY - 30);
+        ctx.fillText('Laser', laserX - 25, laserY + 40);
 
         // Draw laser beam
         ctx.strokeStyle = wavelengthToColor(wavelengthSlider.value, 1); // Dynamic color
