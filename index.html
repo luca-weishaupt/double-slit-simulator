@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Luca's Double Slit Experiment Simulator</title>
+<title>Double Slit Experiment Simulator</title>
 <style>
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -18,35 +18,6 @@
         margin: 0;
         font-size: 32px;
     }
-    #controls {
-        margin: 20px auto;
-        width: 80%;
-        max-width: 800px;
-        background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    .control-group {
-        margin: 15px 0;
-        display: flex;
-        align-items: center;
-    }
-    label {
-        flex: 1;
-        font-size: 18px;
-        text-align: right;
-        margin-right: 15px;
-    }
-    input[type="range"] {
-        flex: 2;
-        margin-right: 15px;
-    }
-    span {
-        flex: 0.5;
-        font-size: 18px;
-        text-align: left;
-    }
     #simulationCanvas {
         margin: 20px auto;
         background-color: #fff;
@@ -56,16 +27,25 @@
         height: 400px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-    #formulaDisplay {
-        text-align: left;
+    /* Container for formula and controls */
+    #bottomContainer {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-start;
+        width: 80%;
+        max-width: 1200px;
         margin: 20px auto 40px;
+    }
+    #formulaDisplay {
+        flex: 1;
+        text-align: left;
         padding: 20px;
         border: 1px solid #ccc;
-        width: 80%;
-        max-width: 800px;
         font-size: 18px;
         background-color: white;
         border-radius: 8px;
+        margin-right: 20px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
     #formulaDisplay p {
@@ -74,6 +54,35 @@
     #formulaDisplay h2 {
         text-align: center;
         margin-bottom: 20px;
+    }
+    #controls {
+        flex: 1;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .control-group {
+        margin: 15px 0;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+    }
+    label {
+        flex: 2;
+        font-size: 18px;
+        text-align: right;
+        margin-right: 15px;
+        white-space: nowrap;
+    }
+    input[type="range"] {
+        flex: 3;
+        margin-right: 15px;
+    }
+    span {
+        flex: 1;
+        font-size: 18px;
+        text-align: left;
     }
     /* Variable colors */
     .variable-lambda {
@@ -117,6 +126,23 @@
         color: green;
     }
     /* Responsive Design */
+    @media (max-width: 800px) {
+        #bottomContainer {
+            flex-direction: column;
+            align-items: center;
+        }
+        #formulaDisplay {
+            margin: 0 0 20px 0;
+            width: 90%;
+        }
+        #controls {
+            width: 90%;
+        }
+        #simulationCanvas {
+            width: 100%;
+            height: auto;
+        }
+    }
     @media (max-width: 600px) {
         .control-group {
             flex-direction: column;
@@ -129,122 +155,122 @@
         span {
             margin-top: 5px;
         }
-        #simulationCanvas {
-            width: 100%;
-            height: auto;
-        }
     }
 </style>
 </head>
 <body>
 
-<h1>Luca's Double Slit Experiment Simulator</h1>
-
-<div id="controls">
-    <div class="control-group">
-        <label for="wavelength"><span class="variable-lambda">Wavelength (λ)</span> in nm:</label>
-        <input type="range" id="wavelength" class="lambda-slider" min="380" max="750" value="550">
-        <span id="wavelengthValue" class="variable-lambda">550</span>
-    </div>
-
-    <div class="control-group">
-        <label for="slitSeparation"><span class="variable-d">Slit Separation (d)</span> in μm:</label>
-        <input type="range" id="slitSeparation" class="d-slider" min="10" max="100" value="50">
-        <span id="slitSeparationValue" class="variable-d">50</span>
-    </div>
-    <div class="control-group">
-        <label for="screenDistance"><span class="variable-L">Screen Distance (L)</span> in m:</label>
-        <input type="range" id="screenDistance" class="L-slider" min="1" max="10" value="5">
-        <span id="screenDistanceValue" class="variable-L">5</span>
-    </div>
-</div>
+<h1>Double Slit Experiment Simulator</h1>
 
 <canvas id="simulationCanvas"></canvas>
 
-<!-- Formula Display -->
-<div id="formulaDisplay">
-    <!-- The formula will be updated here by JavaScript -->
+<div id="bottomContainer">
+    <!-- Formula Display -->
+    <div id="formulaDisplay">
+        <!-- The formula will be updated here by JavaScript -->
+    </div>
+
+    <!-- Controls -->
+    <div id="controls">
+        <div class="control-group">
+            <label for="wavelength"><span class="variable-lambda">Wavelength (λ)</span> in nm:</label>
+            <input type="range" id="wavelength" class="lambda-slider" min="380" max="750" value="550">
+            <span id="wavelengthValue" class="variable-lambda">550</span>
+        </div>
+
+        <div class="control-group">
+            <label for="slitSeparation"><span class="variable-d">Slit Separation (d)</span> in μm:</label>
+            <input type="range" id="slitSeparation" class="d-slider" min="10" max="100" value="50">
+            <span id="slitSeparationValue" class="variable-d">50</span>
+        </div>
+        <div class="control-group">
+            <label for="screenDistance"><span class="variable-L">Screen Distance (L)</span> in m:</label>
+            <input type="range" id="screenDistance" class="L-slider" min="1" max="10" value="5">
+            <span id="screenDistanceValue" class="variable-L">5</span>
+        </div>
+    </div>
 </div>
 
 <script>
-// Canvas setup with high DPI scaling
-const canvas = document.getElementById('simulationCanvas');
-const ctx = canvas.getContext('2d');
+    // Canvas setup with high DPI scaling
+    const canvas = document.getElementById('simulationCanvas');
+    const ctx = canvas.getContext('2d');
 
-// Set canvas dimensions for high DPI displays
-function resizeCanvas() {
-    const width = 900;
-    const height = 400;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = width + 'px';
-    canvas.style.height = height + 'px';
-    ctx.scale(dpr, dpr);
-}
-resizeCanvas();
+    // Set canvas dimensions for high DPI displays
+    function resizeCanvas() {
+        const width = 900;
+        const height = 400;
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = width * dpr;
+        canvas.height = height * dpr;
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        ctx.scale(dpr, dpr);
+    }
+    resizeCanvas();
 
-// DOM elements
-const wavelengthSlider = document.getElementById('wavelength');
-const slitSeparationSlider = document.getElementById('slitSeparation');
-const screenDistanceSlider = document.getElementById('screenDistance');
+    // DOM elements
+    const wavelengthSlider = document.getElementById('wavelength');
+    const slitSeparationSlider = document.getElementById('slitSeparation');
+    const screenDistanceSlider = document.getElementById('screenDistance');
 
-const wavelengthValue = document.getElementById('wavelengthValue');
-const slitSeparationValue = document.getElementById('slitSeparationValue');
-const screenDistanceValue = document.getElementById('screenDistanceValue');
+    const wavelengthValue = document.getElementById('wavelengthValue');
+    const slitSeparationValue = document.getElementById('slitSeparationValue');
+    const screenDistanceValue = document.getElementById('screenDistanceValue');
 
-// Variables to store positions
-const laserX = 70; // Adjusted laser position
-let scaleX, screenX, slitsX;
+    // Variables to store positions
+    const laserX = 70; // Adjusted laser position
+    let scaleX, screenX, slitsX;
 
-// Update displayed values and simulation
-function updateSimulation() {
-    // Update the displayed values
-    wavelengthValue.textContent = wavelengthSlider.value;
-    slitSeparationValue.textContent = slitSeparationSlider.value;
-    screenDistanceValue.textContent = screenDistanceSlider.value;
+    // Update displayed values and simulation
+    function updateSimulation() {
+        // Update the displayed values
+        wavelengthValue.textContent = wavelengthSlider.value;
+        slitSeparationValue.textContent = slitSeparationSlider.value;
+        screenDistanceValue.textContent = screenDistanceSlider.value;
 
-    // Get parameters
-    const wavelength = parseFloat(wavelengthSlider.value) * 1e-9; // Convert nm to meters
-    const slitWidth = 5e-6;   // Fixed at 5 μm
-    const slitSeparation = parseFloat(slitSeparationSlider.value) * 1e-6; // Convert μm to meters
-    const screenDistance = parseFloat(screenDistanceSlider.value); // In meters
+        // Get parameters
+        const wavelength = parseFloat(wavelengthSlider.value) * 1e-9; // Convert nm to meters
+        const slitWidth = 5e-6;   // Fixed at 5 μm
+        const slitSeparation = parseFloat(slitSeparationSlider.value) * 1e-6; // Convert μm to meters
+        const screenDistance = parseFloat(screenDistanceSlider.value); // In meters
 
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw the experiment setup
-    drawSetup(wavelength, slitSeparation, screenDistance);
+        // Draw the experiment setup
+        drawSetup(wavelength, slitSeparation, screenDistance);
 
-    // Draw the sine wave representing the wavelength
-    drawWavelengthSineWave(wavelength);
+        // Draw the sine wave representing the wavelength
+        drawWavelengthSineWave(wavelength);
 
-    // Simulation parameters
-    const numPoints = canvas.height / 2; // Number of points on the screen to calculate intensity
-    const maxIntensity = 1;
+        // Simulation parameters
+        const numPoints = canvas.height / 2; // Number of points on the screen to calculate intensity
+        const maxIntensity = 1;
 
-    // Draw intensity pattern as gradient on the screen
-    drawIntensityPattern(wavelength, slitSeparation, screenDistance, numPoints);
+        // Draw intensity pattern as gradient on the screen
+        drawIntensityPattern(wavelength, slitSeparation, screenDistance, numPoints);
 
-    // Calculate the distance to the first maximum
-    const y1 = (wavelength * screenDistance) / slitSeparation; // in meters
+        // Calculate the distance to the first maximum
+        const y1 = (wavelength * screenDistance) / slitSeparation; // in meters
 
-    // Update the formula display
-    const formulaDisplay = document.getElementById('formulaDisplay');
-    formulaDisplay.innerHTML = `
-        <h2>Distance to the First Maximum</h2>
-        <p><strong>Formula:</strong> <span class="variable-y1">y<sub>1</sub></span> = (<span class="variable-lambda">λ</span> × <span class="variable-L">L</span>) / <span class="variable-d">d</span></p>
-        <p><strong>Values:</strong> <span class="variable-lambda">λ</span> = <span class="variable-lambda">${wavelengthSlider.value}</span> nm, <span class="variable-L">L</span> = <span class="variable-L">${screenDistance.toFixed(2)}</span> m, <span class="variable-d">d</span> = <span class="variable-d">${slitSeparationSlider.value}</span> μm</p>
-        <p><strong>Calculation:</strong> <span class="variable-y1">y<sub>1</sub></span> = (<span class="variable-lambda">${wavelengthSlider.value}</span> × 10<sup>-9</sup> m × <span class="variable-L">${screenDistance.toFixed(2)}</span> m) / (<span class="variable-d">${slitSeparationSlider.value}</span> × 10<sup>-6</sup> m)</p>
-        <p><strong>Result:</strong> <span class="variable-y1">y<sub>1</sub></span> = <span class="variable-y1">${(y1 * 1e3).toFixed(2)}</span> mm</p>
-    `;
+        // Update the formula display
+        const formulaDisplay = document.getElementById('formulaDisplay');
+        formulaDisplay.innerHTML = `
+            <h2>Distance to the First Maximum</h2>
+            <p><strong>Formula:</strong> <span class="variable-y1">y<sub>1</sub></span> = (<span class="variable-lambda">λ</span> × <span class="variable-L">L</span>) / <span class="variable-d">d</span></p>
+            <p><strong>Values:</strong> <span class="variable-lambda">λ</span> = ${wavelengthSlider.value} nm, <span class="variable-L">L</span> = ${screenDistance.toFixed(2)} m, <span class="variable-d">d</span> = ${slitSeparationSlider.value} μm</p>
+            <p><strong>Calculation:</strong> 
+                <span class="variable-y1">y<sub>1</sub></span> = (<span class="variable-lambda">${wavelengthSlider.value}</span> × 10<sup>-9</sup> m × <span class="variable-L">${screenDistance.toFixed(2)}</span> m) / (<span class="variable-d">${slitSeparationSlider.value}</span> × 10<sup>-6</sup> m) = <span class="variable-y1">${(y1 * 1e3).toFixed(2)}</span> mm
+            </p>
+        `;
 
-    // Draw maxima and minima on the screen
-    drawFringes(wavelength, slitSeparation, screenDistance);
+        // Draw maxima and minima on the screen
+        drawFringes(wavelength, slitSeparation, screenDistance);
 
-    // Draw visual aid for y1
-    drawFirstMaximumIndicator(y1);
-}
+        // Draw visual aid for y1
+        drawFirstMaximumIndicator(y1);
+    }
 
 // Function to draw the experimental setup
 function drawSetup(wavelength, slitSeparation, screenDistance) {
