@@ -156,6 +156,25 @@ function updateSimulation() {
         <p><strong>Calculation:</strong> y<sub>1</sub> = (${wavelengthSlider.value} × 10<sup>-9</sup> m × ${screenDistance.toFixed(2)} m) / (${slitSeparationSlider.value} × 10<sup>-6</sup> m)</p>
         <p><strong>Result:</strong> y<sub>1</sub> = ${(y1 * 1e3).toFixed(2)} mm</p>
     `;
+
+    // Draw maxima as small circles on the screen
+    const maxOrder = 10; // Maximum order of maxima to display
+    for (let m = -maxOrder; m <= maxOrder; m++) {
+        // Calculate position of m-th maximum
+        const y_m = (m * wavelength * screenDistance) / slitSeparation; // in meters
+
+        // Convert y_m to pixel position
+        const y_pixel = y_m / 1e-3; // since 1 pixel corresponds to 1 mm
+
+        // Check if y_pixel is within canvas
+        if (Math.abs(y_pixel) <= canvas.height / 2) {
+            // Draw circle at position
+            ctx.beginPath();
+            ctx.arc(screenX + 5, canvas.height / 2 + y_pixel, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = wavelengthToColor(wavelengthSlider.value, 1); // intensity 1
+            ctx.fill();
+        }
+    }
 }
 
 // Function to draw the experimental setup
