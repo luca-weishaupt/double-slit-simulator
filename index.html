@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Double Slit Experiment Simulator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -27,7 +28,7 @@
         height: 400px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
-    /* Container for formula and controls */
+    /* Container for controls and formula */
     #bottomContainer {
         display: flex;
         flex-direction: row;
@@ -37,6 +38,14 @@
         max-width: 1200px;
         margin: 20px auto 40px;
     }
+    #controls {
+        flex: 1;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-right: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
     #formulaDisplay {
         flex: 1;
         text-align: left;
@@ -45,7 +54,6 @@
         font-size: 18px;
         background-color: white;
         border-radius: 8px;
-        margin-right: 20px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
     #formulaDisplay p {
@@ -54,13 +62,6 @@
     #formulaDisplay h2 {
         text-align: center;
         margin-bottom: 20px;
-    }
-    #controls {
-        flex: 1;
-        background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
     .control-group {
         margin: 15px 0;
@@ -126,17 +127,18 @@
         color: green;
     }
     /* Responsive Design */
-    @media (max-width: 800px) {
+    @media (max-width: 800px), (orientation: portrait) {
         #bottomContainer {
             flex-direction: column;
             align-items: center;
         }
-        #formulaDisplay {
-            margin: 0 0 20px 0;
-            width: 90%;
-        }
         #controls {
             width: 90%;
+            margin: 0 0 20px 0;
+        }
+        #formulaDisplay {
+            width: 90%;
+            margin: 0;
         }
         #simulationCanvas {
             width: 100%;
@@ -165,11 +167,6 @@
 <canvas id="simulationCanvas"></canvas>
 
 <div id="bottomContainer">
-    <!-- Formula Display -->
-    <div id="formulaDisplay">
-        <!-- The formula will be updated here by JavaScript -->
-    </div>
-
     <!-- Controls -->
     <div id="controls">
         <div class="control-group">
@@ -188,6 +185,11 @@
             <input type="range" id="screenDistance" class="L-slider" min="1" max="10" value="5">
             <span id="screenDistanceValue" class="variable-L">5</span>
         </div>
+    </div>
+
+    <!-- Formula Display -->
+    <div id="formulaDisplay">
+        <!-- The formula will be updated here by JavaScript -->
     </div>
 </div>
 
@@ -258,9 +260,8 @@
         const formulaDisplay = document.getElementById('formulaDisplay');
         formulaDisplay.innerHTML = `
             <h2>Distance to the First Maximum</h2>
-            <p><strong>Formula:</strong> <span class="variable-y1">y<sub>1</sub></span> = (<span class="variable-lambda">λ</span> × <span class="variable-L">L</span>) / <span class="variable-d">d</span></p>
-            <p><strong>Values:</strong> <span class="variable-lambda">λ</span> = ${wavelengthSlider.value} nm, <span class="variable-L">L</span> = ${screenDistance.toFixed(2)} m, <span class="variable-d">d</span> = ${slitSeparationSlider.value} μm</p>
-            <p><strong>Calculation:</strong> 
+            <p> <span class="variable-y1">y<sub>1</sub></span> = (<span class="variable-lambda">λ</span> × <span class="variable-L">L</span>) / <span class="variable-d">d</span></p>
+            <p>
                 <span class="variable-y1">y<sub>1</sub></span> = (<span class="variable-lambda">${wavelengthSlider.value}</span> × 10<sup>-9</sup> m × <span class="variable-L">${screenDistance.toFixed(2)}</span> m) / (<span class="variable-d">${slitSeparationSlider.value}</span> × 10<sup>-6</sup> m) = <span class="variable-y1">${(y1 * 1e3).toFixed(2)}</span> mm
             </p>
         `;
