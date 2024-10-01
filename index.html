@@ -2,72 +2,164 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Double Slit Experiment Simulator</title>
+<title>Luca's Double Slit Experiment Simulator</title>
 <style>
     body {
-        font-family: Arial, sans-serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         text-align: center;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+    }
+    h1 {
+        background-color: #4CAF50;
+        color: white;
+        padding: 20px 0;
+        margin: 0;
+        font-size: 32px;
     }
     #controls {
-        margin-bottom: 20px;
+        margin: 20px auto;
+        width: 80%;
+        max-width: 800px;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
     .control-group {
-        margin: 10px 0;
+        margin: 15px 0;
+        display: flex;
+        align-items: center;
     }
     label {
-        display: inline-block;
-        width: 200px;
+        flex: 1;
+        font-size: 18px;
         text-align: right;
+        margin-right: 15px;
     }
     input[type="range"] {
-        width: 300px;
+        flex: 2;
+        margin-right: 15px;
+    }
+    span {
+        flex: 0.5;
+        font-size: 18px;
+        text-align: left;
     }
     #simulationCanvas {
-        border: 1px solid #ccc;
-        margin-top: 20px;
-        background-color: #f0f0f0;
+        margin: 20px auto;
+        background-color: #fff;
+        display: block;
+        border-radius: 8px;
+        width: 900px;
+        height: 400px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
     #formulaDisplay {
         text-align: left;
-        margin: 20px auto;
-        padding: 10px;
+        margin: 20px auto 40px;
+        padding: 20px;
         border: 1px solid #ccc;
-        width: 800px;
-        font-size: 16px;
+        width: 80%;
+        max-width: 800px;
+        font-size: 18px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
     #formulaDisplay p {
-        margin: 5px 0;
+        margin: 10px 0;
     }
     #formulaDisplay h2 {
         text-align: center;
-        margin-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    /* Variable colors */
+    .variable-lambda {
+        color: purple;
+    }
+    .variable-d {
+        color: blue;
+    }
+    .variable-L {
+        color: green;
+    }
+    .variable-y1 {
+        color: orange;
+    }
+    /* Slider styles */
+    input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 10px;
+        border-radius: 5px;
+        background: #ddd;
+        outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: currentColor;
+        cursor: pointer;
+    }
+    /* Slider track colors */
+    .lambda-slider {
+        color: purple;
+    }
+    .d-slider {
+        color: blue;
+    }
+    .L-slider {
+        color: green;
+    }
+    /* Responsive Design */
+    @media (max-width: 600px) {
+        .control-group {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        label {
+            text-align: left;
+            margin-bottom: 5px;
+        }
+        span {
+            margin-top: 5px;
+        }
+        #simulationCanvas {
+            width: 100%;
+            height: auto;
+        }
     }
 </style>
 </head>
 <body>
 
-<h1>Double Slit Experiment Simulator</h1>
+<h1>Luca's Double Slit Experiment Simulator</h1>
 
 <div id="controls">
     <div class="control-group">
-        <label for="wavelength">Wavelength (λ) in nm:</label>
-        <input type="range" id="wavelength" min="380" max="750" value="550">
-        <span id="wavelengthValue">550</span>
+        <label for="wavelength"><span class="variable-lambda">Wavelength (λ)</span> in nm:</label>
+        <input type="range" id="wavelength" class="lambda-slider" min="380" max="750" value="550">
+        <span id="wavelengthValue" class="variable-lambda">550</span>
     </div>
 
     <div class="control-group">
-        <label for="slitSeparation">Slit Separation (d) in μm:</label>
-        <input type="range" id="slitSeparation" min="10" max="100" value="50">
-        <span id="slitSeparationValue">50</span>
+        <label for="slitSeparation"><span class="variable-d">Slit Separation (d)</span> in μm:</label>
+        <input type="range" id="slitSeparation" class="d-slider" min="10" max="100" value="50">
+        <span id="slitSeparationValue" class="variable-d">50</span>
     </div>
     <div class="control-group">
-        <label for="screenDistance">Screen Distance (L) in m:</label>
-        <input type="range" id="screenDistance" min="1" max="10" value="5">
-        <span id="screenDistanceValue">5</span>
+        <label for="screenDistance"><span class="variable-L">Screen Distance (L)</span> in m:</label>
+        <input type="range" id="screenDistance" class="L-slider" min="1" max="10" value="5">
+        <span id="screenDistanceValue" class="variable-L">5</span>
     </div>
 </div>
 
-<canvas id="simulationCanvas" width="900" height="400"></canvas>
+<canvas id="simulationCanvas"></canvas>
 
 <!-- Formula Display -->
 <div id="formulaDisplay">
@@ -75,9 +167,22 @@
 </div>
 
 <script>
-// Canvas setup
+// Canvas setup with high DPI scaling
 const canvas = document.getElementById('simulationCanvas');
 const ctx = canvas.getContext('2d');
+
+// Set canvas dimensions for high DPI displays
+function resizeCanvas() {
+    const width = 900;
+    const height = 400;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    ctx.scale(dpr, dpr);
+}
+resizeCanvas();
 
 // DOM elements
 const wavelengthSlider = document.getElementById('wavelength');
@@ -89,7 +194,7 @@ const slitSeparationValue = document.getElementById('slitSeparationValue');
 const screenDistanceValue = document.getElementById('screenDistanceValue');
 
 // Variables to store positions
-const laserX = 50; // Fixed laser position
+const laserX = 70; // Adjusted laser position
 let scaleX, screenX, slitsX;
 
 // Update displayed values and simulation
@@ -109,43 +214,17 @@ function updateSimulation() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw the experiment setup
-    drawSetup(slitSeparation, screenDistance);
+    drawSetup(wavelength, slitSeparation, screenDistance);
 
     // Draw the sine wave representing the wavelength
     drawWavelengthSineWave(wavelength);
 
     // Simulation parameters
-    const numPoints = 500; // Number of points on the screen to calculate intensity
+    const numPoints = canvas.height / 2; // Number of points on the screen to calculate intensity
     const maxIntensity = 1;
 
-    // Draw intensity pattern as histogram extending from the screen to the right
-    for (let i = 0; i < numPoints; i++) {
-        // Position on the screen (from -height/2 to height/2)
-        const y = i - numPoints / 2;
-        // Calculate angle theta
-        const theta = Math.atan(y * 1e-3 / screenDistance); // Scale y to meters
-
-        // Calculate beta and gamma
-        const beta = (Math.PI * slitWidth * Math.sin(theta)) / wavelength;
-        const gamma = (Math.PI * slitSeparation * Math.sin(theta)) / wavelength;
-
-        // Calculate intensity
-        let intensity = Math.pow(Math.cos(gamma), 2) * Math.pow(Math.sin(beta) / beta, 2);
-
-        // Handle division by zero
-        if (isNaN(intensity)) intensity = maxIntensity;
-
-        // Normalize intensity
-        intensity = intensity / maxIntensity;
-
-        // Set color based on wavelength
-        const color = wavelengthToColor(wavelengthSlider.value, intensity);
-
-        // Draw the intensity bar extending from the screen
-        ctx.fillStyle = color;
-        const barLength = intensity * 100; // Length of the bar proportional to intensity
-        ctx.fillRect(screenX + 10, canvas.height / 2 + y, barLength, 1);
-    }
+    // Draw intensity pattern as gradient on the screen
+    drawIntensityPattern(wavelength, slitSeparation, screenDistance, numPoints);
 
     // Calculate the distance to the first maximum
     const y1 = (wavelength * screenDistance) / slitSeparation; // in meters
@@ -154,21 +233,24 @@ function updateSimulation() {
     const formulaDisplay = document.getElementById('formulaDisplay');
     formulaDisplay.innerHTML = `
         <h2>Distance to the First Maximum</h2>
-        <p><strong>Formula:</strong> y<sub>1</sub> = (λ × L) / d</p>
-        <p><strong>Values:</strong> λ = ${wavelengthSlider.value} nm, L = ${screenDistance.toFixed(2)} m, d = ${slitSeparationSlider.value} μm</p>
-        <p><strong>Calculation:</strong> y<sub>1</sub> = (${wavelengthSlider.value} × 10<sup>-9</sup> m × ${screenDistance.toFixed(2)} m) / (${slitSeparationSlider.value} × 10<sup>-6</sup> m)</p>
-        <p><strong>Result:</strong> y<sub>1</sub> = ${(y1 * 1e3).toFixed(2)} mm</p>
+        <p><strong>Formula:</strong> <span class="variable-y1">y<sub>1</sub></span> = (<span class="variable-lambda">λ</span> × <span class="variable-L">L</span>) / <span class="variable-d">d</span></p>
+        <p><strong>Values:</strong> <span class="variable-lambda">λ</span> = <span class="variable-lambda">${wavelengthSlider.value}</span> nm, <span class="variable-L">L</span> = <span class="variable-L">${screenDistance.toFixed(2)}</span> m, <span class="variable-d">d</span> = <span class="variable-d">${slitSeparationSlider.value}</span> μm</p>
+        <p><strong>Calculation:</strong> <span class="variable-y1">y<sub>1</sub></span> = (<span class="variable-lambda">${wavelengthSlider.value}</span> × 10<sup>-9</sup> m × <span class="variable-L">${screenDistance.toFixed(2)}</span> m) / (<span class="variable-d">${slitSeparationSlider.value}</span> × 10<sup>-6</sup> m)</p>
+        <p><strong>Result:</strong> <span class="variable-y1">y<sub>1</sub></span> = <span class="variable-y1">${(y1 * 1e3).toFixed(2)}</span> mm</p>
     `;
 
     // Draw maxima and minima on the screen
     drawFringes(wavelength, slitSeparation, screenDistance);
+
+    // Draw visual aid for y1
+    drawFirstMaximumIndicator(y1);
 }
 
 // Function to draw the experimental setup
-function drawSetup(slitSeparation, screenDistance) {
+function drawSetup(wavelength, slitSeparation, screenDistance) {
     // Fixed positions
-    const screenXFixed = canvas.width - 150; // Fixed position for the screen
-    const laserY = canvas.height / 2;
+    const screenXFixed = canvas.width / (window.devicePixelRatio || 1) - 150; // Fixed position for the screen
+    const laserY = canvas.height / (window.devicePixelRatio || 1) / 2;
 
     // Scaling factor
     const maxScreenDistance = 10; // Maximum screen distance from slider
@@ -184,9 +266,15 @@ function drawSetup(slitSeparation, screenDistance) {
     ctx.fillStyle = 'grey';
     ctx.fillRect(laserX - 20, laserY - 20, 20, 40);
 
+    // Label for Laser
+    ctx.fillStyle = 'black';
+    ctx.font = '16px Arial';
+    ctx.fillText('Laser', laserX - 25, laserY - 30);
+
     // Draw laser beam
-    ctx.strokeStyle = 'red';
+    ctx.strokeStyle = wavelengthToColor(wavelengthSlider.value, 1); // Dynamic color
     ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
     ctx.beginPath();
     ctx.moveTo(laserX, laserY);
     ctx.lineTo(slitsX, laserY);
@@ -195,26 +283,87 @@ function drawSetup(slitSeparation, screenDistance) {
     // Draw slits
     ctx.fillStyle = 'black';
     const slitWidthVisual = 5;
-    const slitSeparationVisual = slitSeparation * 1e6 * 0.5; // Scaled for visualization
+    const slitSeparationVisual = Math.max(15, slitSeparation * 1e6 * 1); // Scaled for visualization
 
     ctx.fillRect(slitsX - slitWidthVisual / 2, laserY - 50, slitWidthVisual, 100);
 
     // Upper slit
     ctx.fillStyle = '#f0f0f0';
-    ctx.fillRect(slitsX - slitWidthVisual / 2, laserY - slitSeparationVisual / 2 - 1, slitWidthVisual, 2);
+    ctx.fillRect(slitsX - slitWidthVisual / 2, laserY - slitSeparationVisual / 2 - 1, slitWidthVisual, 3);
     // Lower slit
-    ctx.fillRect(slitsX - slitWidthVisual / 2, laserY + slitSeparationVisual / 2 - 1, slitWidthVisual, 2);
+    ctx.fillRect(slitsX - slitWidthVisual / 2, laserY + slitSeparationVisual / 2 - 2, slitWidthVisual, 3);
+
+    // Label for Double Slit
+    ctx.fillStyle = 'black';
+    ctx.font = '16px Arial';
+    ctx.fillText('Double Slit', slitsX - 35, laserY - 60);
 
     // Draw screen
     ctx.fillStyle = 'grey';
-    ctx.fillRect(screenX, 0, 10, canvas.height);
+    ctx.fillRect(screenX, 0, 10, canvas.height / (window.devicePixelRatio || 1));
+
+    // Label for Screen (moved to the left)
+    ctx.fillStyle = 'black';
+    ctx.font = '16px Arial';
+    ctx.fillText('Screen', screenX - 60, laserY - 160);
 
     // Draw distance labels and indicators
     drawDistanceIndicators(slitSeparationVisual, screenDistance);
 }
 
+// Function to draw the intensity pattern as a gradient
+function drawIntensityPattern(wavelength, slitSeparation, screenDistance, numPoints) {
+    const laserY = canvas.height / (window.devicePixelRatio || 1) / 2;
+
+    // Create an off-screen canvas for smooth gradient
+    const gradientCanvas = document.createElement('canvas');
+    gradientCanvas.width = 1;
+    gradientCanvas.height = numPoints * 2;
+    const gCtx = gradientCanvas.getContext('2d');
+
+    const imageData = gCtx.createImageData(1, numPoints * 2);
+    const data = imageData.data;
+
+    for (let i = 0; i < numPoints * 2; i++) {
+        // Position on the screen (from -height/2 to height/2)
+        const y = i - numPoints;
+        // Calculate angle theta
+        const theta = Math.atan(y * 1e-3 / screenDistance); // Scale y to meters
+
+        // Calculate beta and gamma
+        const beta = (Math.PI * 5e-6 * Math.sin(theta)) / wavelength;
+        const gamma = (Math.PI * slitSeparation * Math.sin(theta)) / wavelength;
+
+        // Calculate intensity
+        let intensity = Math.pow(Math.cos(gamma), 2) * Math.pow(Math.sin(beta) / beta, 2);
+
+        // Handle division by zero
+        if (isNaN(intensity)) intensity = 1;
+
+        // Normalize intensity
+        intensity = Math.min(Math.max(intensity, 0), 1);
+
+        // Get color based on wavelength and intensity
+        const color = wavelengthToColor(wavelengthSlider.value, intensity);
+        const [r, g, b] = color.match(/\d+/g).map(Number);
+
+        // Set pixel data
+        const index = i * 4;
+        data[index] = r;
+        data[index + 1] = g;
+        data[index + 2] = b;
+        data[index + 3] = 255; // Fully opaque
+    }
+
+    gCtx.putImageData(imageData, 0, 0);
+
+    // Draw the gradient onto the main canvas
+    ctx.drawImage(gradientCanvas, screenX + 10, laserY - numPoints, 100, numPoints * 2);
+}
+
 // Function to draw maxima and minima
 function drawFringes(wavelength, slitSeparation, screenDistance) {
+    const laserY = canvas.height / (window.devicePixelRatio || 1) / 2;
     const maxOrder = 10; // Maximum order of maxima to display
 
     // Draw maxima as small circles on the screen
@@ -226,10 +375,10 @@ function drawFringes(wavelength, slitSeparation, screenDistance) {
         const y_pixel = y_m / 1e-3; // since 1 pixel corresponds to 1 mm
 
         // Check if y_pixel is within canvas
-        if (Math.abs(y_pixel) <= canvas.height / 2) {
+        if (Math.abs(y_pixel) <= canvas.height / (window.devicePixelRatio || 1) / 2) {
             // Draw circle at position
             ctx.beginPath();
-            ctx.arc(screenX + 5, canvas.height / 2 + y_pixel, 5, 0, 2 * Math.PI);
+            ctx.arc(screenX + 5, laserY + y_pixel, 5, 0, 2 * Math.PI);
             ctx.fillStyle = wavelengthToColor(wavelengthSlider.value, 1); // intensity 1
             ctx.fill();
         }
@@ -244,15 +393,15 @@ function drawFringes(wavelength, slitSeparation, screenDistance) {
         const y_pixel = y_m / 1e-3; // 1 pixel corresponds to 1 mm
 
         // Check if y_pixel is within canvas
-        if (Math.abs(y_pixel) <= canvas.height / 2) {
+        if (Math.abs(y_pixel) <= canvas.height / (window.devicePixelRatio || 1) / 2) {
             // Draw 'X' at position
             ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 1.5;
             ctx.beginPath();
-            ctx.moveTo(screenX + 2, canvas.height / 2 + y_pixel - 3);
-            ctx.lineTo(screenX + 8, canvas.height / 2 + y_pixel + 3);
-            ctx.moveTo(screenX + 2, canvas.height / 2 + y_pixel + 3);
-            ctx.lineTo(screenX + 8, canvas.height / 2 + y_pixel - 3);
+            ctx.moveTo(screenX + 1, laserY + y_pixel - 4);
+            ctx.lineTo(screenX + 9, laserY + y_pixel + 4);
+            ctx.moveTo(screenX + 1, laserY + y_pixel + 4);
+            ctx.lineTo(screenX + 9, laserY + y_pixel - 4);
             ctx.stroke();
         }
     }
@@ -260,7 +409,7 @@ function drawFringes(wavelength, slitSeparation, screenDistance) {
 
 // Function to draw distance indicators and labels
 function drawDistanceIndicators(slitSeparationVisual, screenDistance) {
-    const laserY = canvas.height / 2;
+    const laserY = canvas.height / (window.devicePixelRatio || 1) / 2;
 
     // Draw slit separation indicator (d)
     ctx.strokeStyle = 'blue';
@@ -313,7 +462,7 @@ function drawWavelengthSineWave(wavelength) {
     const startX = 20;
     const startY = 50;
     const amplitude = 20;
-    const numPoints = 100;
+    const numPoints = 200;
 
     // Map wavelength to wave length on canvas (longer wavelength => longer wave)
     const minWavelength = 380e-9;
@@ -325,6 +474,7 @@ function drawWavelengthSineWave(wavelength) {
     // Draw the sine wave
     ctx.strokeStyle = wavelengthToColor(wavelengthSlider.value, 1); // Full intensity color
     ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
     ctx.beginPath();
     for (let i = 0; i <= numPoints; i++) {
         const x = startX + (i / numPoints) * waveLength;
@@ -362,6 +512,41 @@ function drawWavelengthSineWave(wavelength) {
     ctx.fillText('λ', startX + waveLength / 2 - 5, startY + amplitude + 25);
 }
 
+// Function to draw the first maximum indicator
+function drawFirstMaximumIndicator(y1) {
+    const laserY = canvas.height / (window.devicePixelRatio || 1) / 2;
+    const y1_pixel = y1 / 1e-3; // Convert meters to pixels (1 pixel = 1 mm)
+
+    // Ensure y1_pixel is within canvas bounds
+    if (Math.abs(y1_pixel) <= canvas.height / (window.devicePixelRatio || 1) / 2) {
+        // Draw vertical line from central maximum to first maximum on the screen
+        ctx.strokeStyle = 'orange';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(screenX - 20, laserY);
+        ctx.lineTo(screenX - 20, laserY - y1_pixel);
+        ctx.stroke();
+
+        // Draw arrowheads at both ends
+        ctx.beginPath();
+        ctx.moveTo(screenX - 23, laserY - y1_pixel + 5);
+        ctx.lineTo(screenX - 20, laserY - y1_pixel);
+        ctx.lineTo(screenX - 17, laserY - y1_pixel + 5);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(screenX - 23, laserY - 5);
+        ctx.lineTo(screenX - 20, laserY);
+        ctx.lineTo(screenX - 17, laserY - 5);
+        ctx.stroke();
+
+        // Label for y1
+        ctx.fillStyle = 'orange';
+        ctx.font = '14px Arial';
+        ctx.fillText('y₁', screenX - 45, laserY - y1_pixel / 2 + 5);
+    }
+}
+
 // Utility function to map a value from one range to another
 function mapValue(value, inMin, inMax, outMin, outMax) {
     return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
@@ -372,6 +557,8 @@ function wavelengthToColor(wavelength, intensity) {
     let R, G, B, alpha;
     const gamma = 0.8;
     const maxIntensity = 255;
+
+    wavelength = wavelength * 1; // Ensure numeric
 
     if (wavelength >= 380 && wavelength < 440) {
         R = -(wavelength - 440) / (440 - 380);
