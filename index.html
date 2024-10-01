@@ -111,6 +111,9 @@ function updateSimulation() {
     // Draw the experiment setup
     drawSetup(slitSeparation, screenDistance);
 
+    // Draw the sine wave representing the wavelength
+    drawWavelengthSineWave(wavelength);
+
     // Simulation parameters
     const numPoints = 500; // Number of points on the screen to calculate intensity
     const maxIntensity = 1;
@@ -267,7 +270,7 @@ function drawDistanceIndicators(slitSeparationVisual, screenDistance) {
     ctx.lineTo(slitsX + 20, laserY + slitSeparationVisual / 2);
     ctx.stroke();
 
-    // Draw arrowheads
+    // Draw arrowheads for slit separation
     ctx.beginPath();
     ctx.moveTo(slitsX + 17, laserY - slitSeparationVisual / 2 + 5);
     ctx.lineTo(slitsX + 20, laserY - slitSeparationVisual / 2);
@@ -289,7 +292,7 @@ function drawDistanceIndicators(slitSeparationVisual, screenDistance) {
     ctx.lineTo(screenX, laserY + 60);
     ctx.stroke();
 
-    // Draw arrowheads
+    // Draw arrowheads for screen distance
     ctx.beginPath();
     ctx.moveTo(slitsX + 5, laserY + 57);
     ctx.lineTo(slitsX, laserY + 60);
@@ -302,6 +305,66 @@ function drawDistanceIndicators(slitSeparationVisual, screenDistance) {
     // Label for screen distance (L)
     ctx.fillStyle = 'green';
     ctx.fillText('L', (slitsX + screenX) / 2 - 5, laserY + 75);
+}
+
+// Function to draw the sine wave representing the wavelength
+function drawWavelengthSineWave(wavelength) {
+    // Position and dimensions
+    const startX = 20;
+    const startY = 50;
+    const amplitude = 20;
+    const numPoints = 100;
+
+    // Map wavelength to wave length on canvas (longer wavelength => longer wave)
+    const minWavelength = 380e-9;
+    const maxWavelength = 750e-9;
+    const minWaveLength = 50;
+    const maxWaveLength = 150;
+    const waveLength = mapValue(wavelength, minWavelength, maxWavelength, minWaveLength, maxWaveLength);
+
+    // Draw the sine wave
+    ctx.strokeStyle = wavelengthToColor(wavelengthSlider.value, 1); // Full intensity color
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i <= numPoints; i++) {
+        const x = startX + (i / numPoints) * waveLength;
+        const y = startY + amplitude * Math.sin((i / numPoints) * 2 * Math.PI);
+        if (i === 0) {
+            ctx.moveTo(x, y);
+        } else {
+            ctx.lineTo(x, y);
+        }
+    }
+    ctx.stroke();
+
+    // Draw wavelength indicator (λ)
+    ctx.strokeStyle = 'purple';
+    ctx.lineWidth = 1;
+    // Horizontal line under the sine wave
+    ctx.beginPath();
+    ctx.moveTo(startX, startY + amplitude + 10);
+    ctx.lineTo(startX + waveLength, startY + amplitude + 10);
+    ctx.stroke();
+
+    // Arrowheads
+    ctx.beginPath();
+    ctx.moveTo(startX + 5, startY + amplitude + 7);
+    ctx.lineTo(startX, startY + amplitude + 10);
+    ctx.lineTo(startX + 5, startY + amplitude + 13);
+    ctx.moveTo(startX + waveLength - 5, startY + amplitude + 7);
+    ctx.lineTo(startX + waveLength, startY + amplitude + 10);
+    ctx.lineTo(startX + waveLength - 5, startY + amplitude + 13);
+    ctx.stroke();
+
+    // Label for wavelength (λ)
+    ctx.fillStyle = 'purple';
+    ctx.font = '14px Arial';
+    ctx.fillText('λ', startX + waveLength / 2 - 5, startY + amplitude + 25);
+}
+
+// Utility function to map a value from one range to another
+function mapValue(value, inMin, inMax, outMin, outMax) {
+    return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
 }
 
 // Convert wavelength to RGB color
