@@ -25,6 +25,22 @@
     #simulationCanvas {
         border: 1px solid #ccc;
         margin-top: 20px;
+        background-color: #f0f0f0;
+    }
+    #legend {
+        text-align: left;
+        margin-top: 10px;
+        font-size: 14px;
+    }
+    .legend-item {
+        margin: 5px 0;
+    }
+    .color-box {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        vertical-align: middle;
+        margin-right: 5px;
     }
 </style>
 </head>
@@ -38,14 +54,10 @@
         <input type="range" id="wavelength" min="380" max="750" value="550">
         <span id="wavelengthValue">550</span>
     </div>
-    <div class="control-group">
-        <label for="slitWidth">Slit Width (μm):</label>
-        <input type="range" id="slitWidth" min="10" max="100" value="50">
-        <span id="slitWidthValue">50</span>
-    </div>
+
     <div class="control-group">
         <label for="slitSeparation">Slit Separation (μm):</label>
-        <input type="range" id="slitSeparation" min="100" max="1000" value="500">
+        <input type="range" id="slitSeparation" min="10" max="100" value="50">
         <span id="slitSeparationValue">500</span>
     </div>
     <div class="control-group">
@@ -55,55 +67,55 @@
     </div>
 </div>
 
-<canvas id="simulationCanvas" width="800" height="400"></canvas>
+<canvas id="simulationCanvas" width="900" height="400"></canvas>
 
 <script>
-// JavaScript code to handle the simulation
-
 // Canvas setup
 const canvas = document.getElementById('simulationCanvas');
 const ctx = canvas.getContext('2d');
 
 // DOM elements
 const wavelengthSlider = document.getElementById('wavelength');
-const slitWidthSlider = document.getElementById('slitWidth');
 const slitSeparationSlider = document.getElementById('slitSeparation');
 const screenDistanceSlider = document.getElementById('screenDistance');
 
 const wavelengthValue = document.getElementById('wavelengthValue');
-const slitWidthValue = document.getElementById('slitWidthValue');
+const slitWidthValue = 5 * 1e-6;
 const slitSeparationValue = document.getElementById('slitSeparationValue');
 const screenDistanceValue = document.getElementById('screenDistanceValue');
+
+// Variables to store positions
+let laserX, scaleX, totalDistance, screenX, slitsX;
 
 // Update displayed values and simulation
 function updateSimulation() {
     // Update the displayed values
     wavelengthValue.textContent = wavelengthSlider.value;
-    slitWidthValue.textContent = slitWidthSlider.value;
     slitSeparationValue.textContent = slitSeparationSlider.value;
     screenDistanceValue.textContent = screenDistanceSlider.value;
 
     // Get parameters
     const wavelength = parseFloat(wavelengthSlider.value) * 1e-9; // Convert nm to meters
-    const slitWidth = parseFloat(slitWidthSlider.value) * 1e-6;   // Convert μm to meters
+    const slitWidth = 5 * 1e-6;   // Convert μm to meters
     const slitSeparation = parseFloat(slitSeparationSlider.value) * 1e-6; // Convert μm to meters
     const screenDistance = parseFloat(screenDistanceSlider.value); // In meters
 
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Draw the experiment setup
+    drawSetup(slitSeparation, screenDistance);
+
     // Simulation parameters
-    const numPoints = canvas.width;
-    const centerX = canvas.width / 2;
+    const numPoints = 500; // Number of points on the screen to calculate intensity
     const maxIntensity = 1;
 
-    // Draw intensity pattern
-    for (let x = 0; x < numPoints; x++) {
-        // Calculate position on screen in meters
-        const position = (x - centerX) * 1e-3; // Scale factor for visualization
-
+    // Draw intensity pattern as histogram extending from the screen to the right
+    for (let i = 0; i < numPoints; i++) {
+        // Position on the screen (from -height/2 to height/2)
+        const y = i - numPoints / 2;
         // Calculate angle theta
-        const theta = Math.atan(position / screenDistance);
+        const theta = Math.atan(y * 1e-3 / screenDistance); // Scale y to meters
 
         // Calculate beta and gamma
         const beta = (Math.PI * slitWidth * Math.sin(theta)) / wavelength;
@@ -121,13 +133,85 @@ function updateSimulation() {
         // Set color based on wavelength
         const color = wavelengthToColor(wavelengthSlider.value, intensity);
 
-        // Draw the intensity line
-        ctx.strokeStyle = color;
-        ctx.beginPath();
-        ctx.moveTo(x, canvas.height);
-        ctx.lineTo(x, canvas.height - intensity * canvas.height);
-        ctx.stroke();
+        // Draw the intensity bar extending from the screen
+        ctx.fillStyle = color;
+        const barLength = intensity * 100; // Length of the bar proportional to intensity
+        ctx.fillRect(screenX + 10, canvas.height / 2 + y, barLength, 1);
     }
+}
+
+// Function to draw the experimental setup
+function drawSetup(slitSeparation, screenDistance) {
+    // Fixed positions
+    const screenXFixed = canvas.width - 150; // Fixed position for the screen
+    const laserXFixed = 50; // Fixed position for the laser
+    const laserY = canvas.height / 2;
+
+    // Scaling factor
+    const maxScreenDistance = 10; // Maximum screen distance from slider
+    const maxTotalDistance = maxScreenDistance; // The maximum distance between slits and screen
+    const availableCanvasWidth = screenXFixed - laserXFixed - 50; // Subtracting margins
+    scaleX = availableCanvasWidth / maxTotalDistance;
+
+    // Positions
+    screenX = screenXFixed;
+    slitsX = screenX - screenDistance * scaleX; // Slits move based on screen distance
+    const laserX = laserXFixed;
+    const laserToSlitDistance = 1; // Fixed at 1 meter
+
+    // Adjust laser position if necessary
+    const minLaserX = 20;
+    if (slitsX - laserToSlitDistance * scaleX < minLaserX) {
+        // Move laser to the left to maintain the fixed laser to slit distance
+        laserX = slitsX - laserToSlitDistance * scaleX;
+    }
+
+    // Draw laser
+    ctx.fillStyle = 'grey';
+    ctx.fillRect(laserX - 100, laserY - 100, 100, 200);
+
+    // Draw laser beam
+    ctx.strokeStyle = 'red';
+    ctx.lineWidth = 50;
+    ctx.beginPath();
+    ctx.moveTo(laserX, laserY);
+    ctx.lineTo(slitsX, laserY);
+    ctx.stroke();
+
+    // Draw slits
+    ctx.fillStyle = 'black';
+    const slitWidthVisual = 5;
+    const slitSeparationVisual = slitSeparation * 1e6 * 0.5; // Scaled for visualization
+
+
+    ctx.fillRect(slitsX - slitWidthVisual / 2, laserY - 50, slitWidthVisual, 100);
+
+    // Upper slit
+    ctx.fillStyle = '#f0f0f0';
+    ctx.fillRect(slitsX - slitWidthVisual / 2, laserY - slitSeparationVisual / 2 - 1, slitWidthVisual, 2);
+    // Lower slit
+    ctx.fillRect(slitsX - slitWidthVisual / 2, laserY + slitSeparationVisual / 2 - 1, slitWidthVisual, 2);
+
+
+    // Draw screen
+    ctx.fillStyle = 'grey';
+    ctx.fillRect(screenX, 0, 10, canvas.height);
+
+    // Draw beams from slits to screen (simplified representation)
+    ctx.strokeStyle = 'rgba(0, 0, 255, 0.3)';
+    ctx.lineWidth = 1;
+
+    // // From upper slit
+    // ctx.beginPath();
+    // ctx.moveTo(slitsX, laserY - slitSeparationVisual / 2);
+    // ctx.lineTo(screenX, laserY - slitSeparationVisual / 2);
+    // ctx.stroke();
+
+    // // From lower slit
+    // ctx.beginPath();
+    // ctx.moveTo(slitsX, laserY + slitSeparationVisual / 2);
+    // ctx.lineTo(screenX, laserY + slitSeparationVisual / 2);
+    // ctx.stroke();
 }
 
 // Convert wavelength to RGB color
@@ -183,7 +267,7 @@ function wavelengthToColor(wavelength, intensity) {
 }
 
 // Add event listeners
-[wavelengthSlider, slitWidthSlider, slitSeparationSlider, screenDistanceSlider].forEach(slider => {
+[wavelengthSlider, slitSeparationSlider, screenDistanceSlider].forEach(slider => {
     slider.addEventListener('input', updateSimulation);
 });
 
