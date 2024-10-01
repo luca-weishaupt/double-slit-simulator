@@ -16,7 +16,7 @@
     }
     label {
         display: inline-block;
-        width: 150px;
+        width: 200px;
         text-align: right;
     }
     input[type="range"] {
@@ -50,18 +50,18 @@
 
 <div id="controls">
     <div class="control-group">
-        <label for="wavelength">Wavelength (nm):</label>
+        <label for="wavelength">Wavelength (λ) in nm:</label>
         <input type="range" id="wavelength" min="380" max="750" value="550">
         <span id="wavelengthValue">550</span>
     </div>
 
     <div class="control-group">
-        <label for="slitSeparation">Slit Separation (μm):</label>
+        <label for="slitSeparation">Slit Separation (d) in μm:</label>
         <input type="range" id="slitSeparation" min="10" max="100" value="50">
         <span id="slitSeparationValue">50</span>
     </div>
     <div class="control-group">
-        <label for="screenDistance">Screen Distance (m):</label>
+        <label for="screenDistance">Screen Distance (L) in m:</label>
         <input type="range" id="screenDistance" min="1" max="10" value="5">
         <span id="screenDistanceValue">5</span>
     </div>
@@ -157,49 +157,8 @@ function updateSimulation() {
         <p><strong>Result:</strong> y<sub>1</sub> = ${(y1 * 1e3).toFixed(2)} mm</p>
     `;
 
-    // Draw maxima as small circles on the screen
-    const maxOrder = 10; // Maximum order of maxima to display
-    for (let m = -maxOrder; m <= maxOrder; m++) {
-        // Calculate position of m-th maximum
-        const y_m = (m * wavelength * screenDistance) / slitSeparation; // in meters
-
-        // Convert y_m to pixel position
-        const y_pixel = y_m / 1e-3; // since 1 pixel corresponds to 1 mm
-
-        // Check if y_pixel is within canvas
-        if (Math.abs(y_pixel) <= canvas.height / 2) {
-            // Draw circle at position
-            ctx.beginPath();
-            ctx.arc(screenX + 5, canvas.height / 2 + y_pixel, 5, 0, 2 * Math.PI);
-            ctx.fillStyle = wavelengthToColor(wavelengthSlider.value, 1); // intensity 1
-            ctx.fill();
-            // Removed the stroke as per your request
-            // ctx.strokeStyle = 'black';
-            // ctx.stroke();
-        }
-    }
-
-    // Draw minima as small 'X' marks on the screen
-    for (let m = -maxOrder; m <= maxOrder; m++) {
-        // Calculate position of m-th minimum
-        const y_m = ((m + 0.5) * wavelength * screenDistance) / slitSeparation; // in meters
-
-        // Convert y_m to pixel position
-        const y_pixel = y_m / 1e-3; // 1 pixel corresponds to 1 mm
-
-        // Check if y_pixel is within canvas
-        if (Math.abs(y_pixel) <= canvas.height / 2) {
-            // Draw 'X' at position
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(screenX + 2, canvas.height / 2 + y_pixel - 3);
-            ctx.lineTo(screenX + 8, canvas.height / 2 + y_pixel + 3);
-            ctx.moveTo(screenX + 2, canvas.height / 2 + y_pixel + 3);
-            ctx.lineTo(screenX + 8, canvas.height / 2 + y_pixel - 3);
-            ctx.stroke();
-        }
-    }
+    // Draw maxima and minima on the screen
+    drawFringes(wavelength, slitSeparation, screenDistance);
 }
 
 // Function to draw the experimental setup
@@ -246,6 +205,103 @@ function drawSetup(slitSeparation, screenDistance) {
     // Draw screen
     ctx.fillStyle = 'grey';
     ctx.fillRect(screenX, 0, 10, canvas.height);
+
+    // Draw distance labels and indicators
+    drawDistanceIndicators(slitSeparationVisual, screenDistance);
+}
+
+// Function to draw maxima and minima
+function drawFringes(wavelength, slitSeparation, screenDistance) {
+    const maxOrder = 10; // Maximum order of maxima to display
+
+    // Draw maxima as small circles on the screen
+    for (let m = -maxOrder; m <= maxOrder; m++) {
+        // Calculate position of m-th maximum
+        const y_m = (m * wavelength * screenDistance) / slitSeparation; // in meters
+
+        // Convert y_m to pixel position
+        const y_pixel = y_m / 1e-3; // since 1 pixel corresponds to 1 mm
+
+        // Check if y_pixel is within canvas
+        if (Math.abs(y_pixel) <= canvas.height / 2) {
+            // Draw circle at position
+            ctx.beginPath();
+            ctx.arc(screenX + 5, canvas.height / 2 + y_pixel, 5, 0, 2 * Math.PI);
+            ctx.fillStyle = wavelengthToColor(wavelengthSlider.value, 1); // intensity 1
+            ctx.fill();
+        }
+    }
+
+    // Draw minima as small 'X' marks on the screen
+    for (let m = -maxOrder; m <= maxOrder; m++) {
+        // Calculate position of m-th minimum
+        const y_m = ((m + 0.5) * wavelength * screenDistance) / slitSeparation; // in meters
+
+        // Convert y_m to pixel position
+        const y_pixel = y_m / 1e-3; // 1 pixel corresponds to 1 mm
+
+        // Check if y_pixel is within canvas
+        if (Math.abs(y_pixel) <= canvas.height / 2) {
+            // Draw 'X' at position
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(screenX + 2, canvas.height / 2 + y_pixel - 3);
+            ctx.lineTo(screenX + 8, canvas.height / 2 + y_pixel + 3);
+            ctx.moveTo(screenX + 2, canvas.height / 2 + y_pixel + 3);
+            ctx.lineTo(screenX + 8, canvas.height / 2 + y_pixel - 3);
+            ctx.stroke();
+        }
+    }
+}
+
+// Function to draw distance indicators and labels
+function drawDistanceIndicators(slitSeparationVisual, screenDistance) {
+    const laserY = canvas.height / 2;
+
+    // Draw slit separation indicator (d)
+    ctx.strokeStyle = 'blue';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(slitsX + 20, laserY - slitSeparationVisual / 2);
+    ctx.lineTo(slitsX + 20, laserY + slitSeparationVisual / 2);
+    ctx.stroke();
+
+    // Draw arrowheads
+    ctx.beginPath();
+    ctx.moveTo(slitsX + 17, laserY - slitSeparationVisual / 2 + 5);
+    ctx.lineTo(slitsX + 20, laserY - slitSeparationVisual / 2);
+    ctx.lineTo(slitsX + 23, laserY - slitSeparationVisual / 2 + 5);
+    ctx.moveTo(slitsX + 17, laserY + slitSeparationVisual / 2 - 5);
+    ctx.lineTo(slitsX + 20, laserY + slitSeparationVisual / 2);
+    ctx.lineTo(slitsX + 23, laserY + slitSeparationVisual / 2 - 5);
+    ctx.stroke();
+
+    // Label for slit separation (d)
+    ctx.fillStyle = 'blue';
+    ctx.font = '14px Arial';
+    ctx.fillText('d', slitsX + 25, laserY + 5);
+
+    // Draw screen distance indicator (L)
+    ctx.strokeStyle = 'green';
+    ctx.beginPath();
+    ctx.moveTo(slitsX, laserY + 60);
+    ctx.lineTo(screenX, laserY + 60);
+    ctx.stroke();
+
+    // Draw arrowheads
+    ctx.beginPath();
+    ctx.moveTo(slitsX + 5, laserY + 57);
+    ctx.lineTo(slitsX, laserY + 60);
+    ctx.lineTo(slitsX + 5, laserY + 63);
+    ctx.moveTo(screenX - 5, laserY + 57);
+    ctx.lineTo(screenX, laserY + 60);
+    ctx.lineTo(screenX - 5, laserY + 63);
+    ctx.stroke();
+
+    // Label for screen distance (L)
+    ctx.fillStyle = 'green';
+    ctx.fillText('L', (slitsX + screenX) / 2 - 5, laserY + 75);
 }
 
 // Convert wavelength to RGB color
