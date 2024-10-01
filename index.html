@@ -27,20 +27,20 @@
         margin-top: 20px;
         background-color: #f0f0f0;
     }
-    #legend {
+    #formulaDisplay {
         text-align: left;
-        margin-top: 10px;
-        font-size: 14px;
+        margin: 20px auto;
+        padding: 10px;
+        border: 1px solid #ccc;
+        width: 800px;
+        font-size: 16px;
     }
-    .legend-item {
+    #formulaDisplay p {
         margin: 5px 0;
     }
-    .color-box {
-        display: inline-block;
-        width: 15px;
-        height: 15px;
-        vertical-align: middle;
-        margin-right: 5px;
+    #formulaDisplay h2 {
+        text-align: center;
+        margin-bottom: 10px;
     }
 </style>
 </head>
@@ -58,7 +58,7 @@
     <div class="control-group">
         <label for="slitSeparation">Slit Separation (μm):</label>
         <input type="range" id="slitSeparation" min="10" max="100" value="50">
-        <span id="slitSeparationValue">500</span>
+        <span id="slitSeparationValue">50</span>
     </div>
     <div class="control-group">
         <label for="screenDistance">Screen Distance (m):</label>
@@ -68,6 +68,11 @@
 </div>
 
 <canvas id="simulationCanvas" width="900" height="400"></canvas>
+
+<!-- Formula Display -->
+<div id="formulaDisplay">
+    <!-- The formula will be updated here by JavaScript -->
+</div>
 
 <script>
 // Canvas setup
@@ -80,12 +85,12 @@ const slitSeparationSlider = document.getElementById('slitSeparation');
 const screenDistanceSlider = document.getElementById('screenDistance');
 
 const wavelengthValue = document.getElementById('wavelengthValue');
-const slitWidthValue = 5 * 1e-6;
 const slitSeparationValue = document.getElementById('slitSeparationValue');
 const screenDistanceValue = document.getElementById('screenDistanceValue');
 
 // Variables to store positions
-let laserX, scaleX, totalDistance, screenX, slitsX;
+const laserX = 50; // Fixed laser position
+let scaleX, screenX, slitsX;
 
 // Update displayed values and simulation
 function updateSimulation() {
@@ -96,7 +101,7 @@ function updateSimulation() {
 
     // Get parameters
     const wavelength = parseFloat(wavelengthSlider.value) * 1e-9; // Convert nm to meters
-    const slitWidth = 5 * 1e-6;   // Convert μm to meters
+    const slitWidth = 5e-6;   // Fixed at 5 μm
     const slitSeparation = parseFloat(slitSeparationSlider.value) * 1e-6; // Convert μm to meters
     const screenDistance = parseFloat(screenDistanceSlider.value); // In meters
 
@@ -138,41 +143,44 @@ function updateSimulation() {
         const barLength = intensity * 100; // Length of the bar proportional to intensity
         ctx.fillRect(screenX + 10, canvas.height / 2 + y, barLength, 1);
     }
+
+    // Calculate the distance to the first maximum
+    const y1 = (wavelength * screenDistance) / slitSeparation; // in meters
+
+    // Update the formula display
+    const formulaDisplay = document.getElementById('formulaDisplay');
+    formulaDisplay.innerHTML = `
+        <h2>Distance to the First Maximum</h2>
+        <p><strong>Formula:</strong> y<sub>1</sub> = (λ × L) / d</p>
+        <p><strong>Values:</strong> λ = ${wavelengthSlider.value} nm, L = ${screenDistance.toFixed(2)} m, d = ${slitSeparationSlider.value} μm</p>
+        <p><strong>Calculation:</strong> y<sub>1</sub> = (${wavelengthSlider.value} × 10<sup>-9</sup> m × ${screenDistance.toFixed(2)} m) / (${slitSeparationSlider.value} × 10<sup>-6</sup> m)</p>
+        <p><strong>Result:</strong> y<sub>1</sub> = ${(y1 * 1e3).toFixed(2)} mm</p>
+    `;
 }
 
 // Function to draw the experimental setup
 function drawSetup(slitSeparation, screenDistance) {
     // Fixed positions
     const screenXFixed = canvas.width - 150; // Fixed position for the screen
-    const laserXFixed = 50; // Fixed position for the laser
     const laserY = canvas.height / 2;
 
     // Scaling factor
     const maxScreenDistance = 10; // Maximum screen distance from slider
     const maxTotalDistance = maxScreenDistance; // The maximum distance between slits and screen
-    const availableCanvasWidth = screenXFixed - laserXFixed - 50; // Subtracting margins
+    const availableCanvasWidth = screenXFixed - laserX - 50; // Subtracting margins
     scaleX = availableCanvasWidth / maxTotalDistance;
 
     // Positions
     screenX = screenXFixed;
     slitsX = screenX - screenDistance * scaleX; // Slits move based on screen distance
-    const laserX = laserXFixed;
-    const laserToSlitDistance = 1; // Fixed at 1 meter
-
-    // Adjust laser position if necessary
-    const minLaserX = 20;
-    if (slitsX - laserToSlitDistance * scaleX < minLaserX) {
-        // Move laser to the left to maintain the fixed laser to slit distance
-        laserX = slitsX - laserToSlitDistance * scaleX;
-    }
 
     // Draw laser
     ctx.fillStyle = 'grey';
-    ctx.fillRect(laserX - 100, laserY - 100, 100, 200);
+    ctx.fillRect(laserX - 20, laserY - 20, 20, 40);
 
     // Draw laser beam
     ctx.strokeStyle = 'red';
-    ctx.lineWidth = 50;
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(laserX, laserY);
     ctx.lineTo(slitsX, laserY);
@@ -183,7 +191,6 @@ function drawSetup(slitSeparation, screenDistance) {
     const slitWidthVisual = 5;
     const slitSeparationVisual = slitSeparation * 1e6 * 0.5; // Scaled for visualization
 
-
     ctx.fillRect(slitsX - slitWidthVisual / 2, laserY - 50, slitWidthVisual, 100);
 
     // Upper slit
@@ -192,26 +199,9 @@ function drawSetup(slitSeparation, screenDistance) {
     // Lower slit
     ctx.fillRect(slitsX - slitWidthVisual / 2, laserY + slitSeparationVisual / 2 - 1, slitWidthVisual, 2);
 
-
     // Draw screen
     ctx.fillStyle = 'grey';
     ctx.fillRect(screenX, 0, 10, canvas.height);
-
-    // Draw beams from slits to screen (simplified representation)
-    ctx.strokeStyle = 'rgba(0, 0, 255, 0.3)';
-    ctx.lineWidth = 1;
-
-    // // From upper slit
-    // ctx.beginPath();
-    // ctx.moveTo(slitsX, laserY - slitSeparationVisual / 2);
-    // ctx.lineTo(screenX, laserY - slitSeparationVisual / 2);
-    // ctx.stroke();
-
-    // // From lower slit
-    // ctx.beginPath();
-    // ctx.moveTo(slitsX, laserY + slitSeparationVisual / 2);
-    // ctx.lineTo(screenX, laserY + slitSeparationVisual / 2);
-    // ctx.stroke();
 }
 
 // Convert wavelength to RGB color
