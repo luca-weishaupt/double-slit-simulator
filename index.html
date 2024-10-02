@@ -230,7 +230,7 @@
         <div id="controls">
             <div class="control-group">
                 <label for="k"><span class="variable-k">k-th Maximum (k)</span>:</label>
-                <input type="range" id="k" class="k-slider" min="1" max="6" value="2">
+                <input type="range" id="k" class="k-slider" min="1" max="10" value="3">
                 <span id="kValue" class="variable-k">2</span>
             </div>
             <div class="control-group">
@@ -683,71 +683,113 @@
         function drawFirstMaximumIndicator(y1, extrema) {
             const canvasHeight = canvas.height / (window.devicePixelRatio || 1);
             const laserY = canvasHeight / 2;
-            const y1_pixel = y1 / 1e-3; // Convert meters to pixels (1 pixel = 1 mm)
+            let y1_pixel = y1 / 1e-3; // Convert meters to pixels (1 pixel = 1 mm)
+            let endY = laserY - y1_pixel;
 
-            if (Math.abs(y1_pixel) <= canvasHeight / 2) {
-                ctx.strokeStyle = 'orange';
-                ctx.lineWidth = 2;
+            let drawTopArrowhead = true;
+
+            // Adjust if the arrow goes over the top of the canvas
+            if (endY < 0) {
+                endY = 0;
+                drawTopArrowhead = false; // Don't draw the top arrowhead
+            }
+
+            ctx.strokeStyle = 'orange';
+            ctx.lineWidth = 2;
+
+            // Draw the line
+            ctx.beginPath();
+            ctx.moveTo(screenX - 20, laserY);
+            ctx.lineTo(screenX - 20, endY);
+            ctx.stroke();
+
+            // Draw bottom arrowhead
+            ctx.beginPath();
+            ctx.moveTo(screenX - 23, laserY - 5);
+            ctx.lineTo(screenX - 20, laserY);
+            ctx.lineTo(screenX - 17, laserY - 5);
+            ctx.stroke();
+
+            // Draw top arrowhead if there's space
+            if (drawTopArrowhead) {
                 ctx.beginPath();
-                ctx.moveTo(screenX - 20, laserY);
-                ctx.lineTo(screenX - 20, laserY - y1_pixel);
+                ctx.moveTo(screenX - 23, endY + 5);
+                ctx.lineTo(screenX - 20, endY);
+                ctx.lineTo(screenX - 17, endY + 5);
                 ctx.stroke();
+            }
 
-                // Draw arrowheads at both ends
-                ctx.beginPath();
-                ctx.moveTo(screenX - 23, laserY - y1_pixel + 5);
-                ctx.lineTo(screenX - 20, laserY - y1_pixel);
-                ctx.lineTo(screenX - 17, laserY - y1_pixel + 5);
-                ctx.stroke();
+            // Label for y1
+            ctx.fillStyle = 'orange';
+            ctx.font = '14px Arial';
+            const label = extrema === 'maxima' ? 'y1' : "y'1";
 
-                ctx.beginPath();
-                ctx.moveTo(screenX - 23, laserY - 5);
-                ctx.lineTo(screenX - 20, laserY);
-                ctx.lineTo(screenX - 17, laserY - 5);
-                ctx.stroke();
-
-                // Label for y1
-                ctx.fillStyle = 'orange';
-                ctx.font = '14px Arial';
-                const label = extrema === 'maxima' ? 'y₁' : "y'₁";
-                ctx.fillText(label, screenX - 45, laserY - y1_pixel / 2 + 5);
+            // Position the label appropriately
+            if (endY > 15) {
+                // Enough space to position the label midway
+                ctx.fillText(label, screenX - 45, (laserY + endY) / 2 + 5);
+            } else {
+                // Place the label at the top edge
+                ctx.fillText(label, screenX - 45, 15);
             }
         }
+
 
         // Function to draw the k-th maximum or minimum indicator
         function drawKthMaximumIndicator(yk, k, extrema) {
             const canvasHeight = canvas.height / (window.devicePixelRatio || 1);
             const laserY = canvasHeight / 2;
-            const yk_pixel = yk / 1e-3; // Convert meters to pixels
+            let yk_pixel = yk / 1e-3; // Convert meters to pixels
+            let endY = laserY - yk_pixel;
 
-            if (Math.abs(yk_pixel) <= canvasHeight / 2) {
-                ctx.strokeStyle = 'red';
-                ctx.lineWidth = 2;
+            let drawTopArrowhead = true;
+
+            // Adjust if the arrow goes over the top of the canvas
+            if (endY < 0) {
+                endY = 0;
+                drawTopArrowhead = false; // Don't draw the top arrowhead
+            }
+
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 2;
+
+            // Draw the line
+            ctx.beginPath();
+            ctx.moveTo(screenX - 50, laserY);
+            ctx.lineTo(screenX - 50, endY);
+            ctx.stroke();
+
+            // Draw bottom arrowhead
+            ctx.beginPath();
+            ctx.moveTo(screenX - 53, laserY - 5);
+            ctx.lineTo(screenX - 50, laserY);
+            ctx.lineTo(screenX - 47, laserY - 5);
+            ctx.stroke();
+
+            // Draw top arrowhead if there's space
+            if (drawTopArrowhead) {
                 ctx.beginPath();
-                ctx.moveTo(screenX - 50, laserY);
-                ctx.lineTo(screenX - 50, laserY - yk_pixel);
+                ctx.moveTo(screenX - 53, endY + 5);
+                ctx.lineTo(screenX - 50, endY);
+                ctx.lineTo(screenX - 47, endY + 5);
                 ctx.stroke();
+            }
 
-                // Draw arrowheads at both ends
-                ctx.beginPath();
-                ctx.moveTo(screenX - 53, laserY - yk_pixel + 5);
-                ctx.lineTo(screenX - 50, laserY - yk_pixel);
-                ctx.lineTo(screenX - 47, laserY - yk_pixel + 5);
-                ctx.stroke();
+            // Label for yk
+            ctx.fillStyle = 'red';
+            ctx.font = '14px Arial';
+            const label = extrema === 'maxima' ? `y${k}` : `y'${k}`;
 
-                ctx.beginPath();
-                ctx.moveTo(screenX - 53, laserY - 5);
-                ctx.lineTo(screenX - 50, laserY);
-                ctx.lineTo(screenX - 47, laserY - 5);
-                ctx.stroke();
-
-                // Label for yk
-                ctx.fillStyle = 'red';
-                ctx.font = '14px Arial';
-                const label = extrema === 'maxima' ? `y${k}` : `y'${k}`;
-                ctx.fillText(label, screenX - 75, laserY - yk_pixel / 2 + 5);
+            // Position the label appropriately
+            if (endY > 15) {
+                // Enough space to position the label midway
+                ctx.fillText(label, screenX - 75, (laserY + endY) / 2 + 5);
+            } else {
+                // Place the label at the top edge
+                ctx.fillText(label, screenX - 75, 15);
             }
         }
+
 
         // Utility function to map a value from one range to another
         function mapValue(value, inMin, inMax, outMin, outMax) {
