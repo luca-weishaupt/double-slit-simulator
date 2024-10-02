@@ -82,6 +82,9 @@
         text-align: left;
     }
     /* Variable colors */
+    .variable-k {
+        color: turquoise;
+    }
     .variable-lambda {
         color: purple;
     }
@@ -93,6 +96,9 @@
     }
     .variable-y1 {
         color: orange;
+    }
+    .variable-yk {
+        color: red;
     }
     /* Slider styles */
     input[type="range"] {
@@ -113,6 +119,9 @@
         cursor: pointer;
     }
     /* Slider track colors */
+    .k-slider {
+        color: turquoise;
+    }
     .lambda-slider {
         color: purple;
     }
@@ -169,6 +178,11 @@
     <!-- Controls -->
     <div id="controls">
         <div class="control-group">
+            <label for="k"><span class="variable-k">k-th Maximum (k)</span>:</label>
+            <input type="range" id="k" class="k-slider" min="1" max="6" value="2">
+            <span id="kValue" class="variable-k">2</span>
+        </div>
+        <div class="control-group">
             <label for="wavelength"><span class="variable-lambda">Wavelength (λ)</span> in nm:</label>
             <input type="range" id="wavelength" class="lambda-slider" min="380" max="750" value="550">
             <span id="wavelengthValue" class="variable-lambda">550</span>
@@ -176,7 +190,7 @@
 
         <div class="control-group">
             <label for="slitSeparation"><span class="variable-d">Slit Separation (d)</span> in μm:</label>
-            <input type="range" id="slitSeparation" class="d-slider" min="10" max="100" value="50">
+            <input type="range" id="slitSeparation" class="d-slider" min="10" max="500" value="50">
             <span id="slitSeparationValue" class="variable-d">50</span>
         </div>
         <div class="control-group">
@@ -218,10 +232,12 @@
     });
 
     // DOM elements
+    const kSlider = document.getElementById('k');
     const wavelengthSlider = document.getElementById('wavelength');
     const slitSeparationSlider = document.getElementById('slitSeparation');
     const screenDistanceSlider = document.getElementById('screenDistance');
 
+    const kValue = document.getElementById('kValue');
     const wavelengthValue = document.getElementById('wavelengthValue');
     const slitSeparationValue = document.getElementById('slitSeparationValue');
     const screenDistanceValue = document.getElementById('screenDistanceValue');
@@ -233,11 +249,13 @@
     // Update displayed values and simulation
     function updateSimulation() {
         // Update the displayed values
+        kValue.textContent = kSlider.value;
         wavelengthValue.textContent = wavelengthSlider.value;
         slitSeparationValue.textContent = slitSeparationSlider.value;
         screenDistanceValue.textContent = screenDistanceSlider.value;
 
         // Get parameters
+        const k = parseInt(kSlider.value);
         const wavelength = parseFloat(wavelengthSlider.value) * 1e-9; // Convert nm to meters
         const slitWidth = 5e-6;   // Fixed at 5 μm
         const slitSeparation = parseFloat(slitSeparationSlider.value) * 1e-6; // Convert μm to meters
@@ -247,7 +265,7 @@
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Draw the experiment setup
-        drawSetup(wavelength, slitSeparation, screenDistance);
+        drawSetup(k, wavelength, slitSeparation, screenDistance);
 
         // Draw the sine wave representing the wavelength
         drawWavelengthSineWave(wavelength);
@@ -262,6 +280,9 @@
         // Calculate the distance to the first maximum
         const y1 = (wavelength * screenDistance) / slitSeparation; // in meters
 
+        // Calculate the distance to the k-th maximum
+        const yk = (k * wavelength * screenDistance) / slitSeparation; // in meters
+
         // Update the formula display
         const formulaDisplay = document.getElementById('formulaDisplay');
         formulaDisplay.innerHTML = `
@@ -270,17 +291,25 @@
             <p>
                 <span class="variable-y1">y<sub>1</sub></span> = (<span class="variable-lambda">${wavelengthSlider.value}</span> × 10<sup>-9</sup> m × <span class="variable-L">${screenDistance.toFixed(2)}</span> m) / (<span class="variable-d">${slitSeparationSlider.value}</span> × 10<sup>-6</sup> m) = <span class="variable-y1">${(y1 * 1e3).toFixed(2)}</span> mm
             </p>
-        `;
+            <h2>Distance to the k-th Maximum</h2>
+            <p> <span class="variable-yk">y<sub>${k}</sub></span> = <span class="variable-k"> k </span> × <span class="variable-y1">y<sub>1</sub></span></p>
+            <p>
+                <span class="variable-yk">y<sub>${k}</sub></span> = <span class="variable-k"> ${k} </span> × <span class="variable-y1">${(y1 * 1e3).toFixed(2)}</span> = <span class="variable-yk">${(yk * 1e3).toFixed(2)}</span> mm
+            </p>
+            `;
 
         // Draw maxima and minima on the screen
         drawFringes(wavelength, slitSeparation, screenDistance);
 
         // Draw visual aid for y1
         drawFirstMaximumIndicator(y1);
+
+        // Draw k-th maximum indicator
+        drawKthMaximumIndicator(yk, k);
     }
 
     // Function to draw the experimental setup
-    function drawSetup(wavelength, slitSeparation, screenDistance) {
+    function drawSetup(k, wavelength, slitSeparation, screenDistance) {
         // Fixed positions
         const canvasWidth = canvas.width / (window.devicePixelRatio || 1);
         const canvasHeight = canvas.height / (window.devicePixelRatio || 1);
@@ -585,6 +614,41 @@
         }
     }
 
+    function drawKthMaximumIndicator(yk, k) {
+        const canvasHeight = canvas.height / (window.devicePixelRatio || 1);
+        const laserY = canvasHeight / 2;
+        const yk_pixel = yk / 1e-3; // Convert meters to pixels (1 pixel = 1 mm)
+
+        // Ensure yk_pixel is within canvas bounds
+        if (Math.abs(yk_pixel) <= canvasHeight / 2) {
+            // Draw vertical line from central maximum to k-th maximum on the screen
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(screenX - 50, laserY);
+            ctx.lineTo(screenX - 50, laserY - yk_pixel);
+            ctx.stroke();
+
+            // Draw arrowheads at both ends
+            ctx.beginPath();
+            ctx.moveTo(screenX - 53, laserY - yk_pixel + 5);
+            ctx.lineTo(screenX - 50, laserY - yk_pixel);
+            ctx.lineTo(screenX - 47, laserY - yk_pixel + 5);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(screenX - 53, laserY - 5);
+            ctx.lineTo(screenX - 50, laserY);
+            ctx.lineTo(screenX - 47, laserY - 5);
+            ctx.stroke();
+
+            // Label for yk
+            ctx.fillStyle = 'red';
+            ctx.font = '14px Arial';
+            ctx.fillText(`y${k}`, screenX - 75, laserY - yk_pixel / 2 + 5);
+        }
+    }
+
     // Utility function to map a value from one range to another
     function mapValue(value, inMin, inMax, outMin, outMax) {
         return ((value - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
@@ -645,7 +709,7 @@
     }
 
     // Add event listeners
-    [wavelengthSlider, slitSeparationSlider, screenDistanceSlider].forEach(slider => {
+    [kSlider, wavelengthSlider, slitSeparationSlider, screenDistanceSlider].forEach(slider => {
         slider.addEventListener('input', updateSimulation);
     });
 
