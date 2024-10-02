@@ -396,17 +396,17 @@
                 <p><span class="variable-y1">y<sub>1</sub></span> = (<span class="variable-lambda">λ</span> × <span class="variable-L">L</span>) / <span class="variable-d">d</span></p>
                 <p><span class="variable-y1">y<sub>1</sub></span> = (<span class="variable-lambda">${wavelengthValue}</span> × 10<sup>-9</sup> m × <span class="variable-L">${screenDistance.toFixed(2)}</span> m) / (<span class="variable-d">${slitSeparationValue}</span> × 10<sup>-6</sup> m) = <span class="variable-y1">${(y1 * 1e3).toFixed(2)}</span> mm</p>
                 <h2>Distance to the k-th Maximum</h2>
-                <p><span class="variable-yk">y<sub>${k}</sub></span> = <span class="variable-k">k</span> × <span class="variable-y1">y<sub>1</sub></span></p>
-                <p><span class="variable-yk">y<sub>${k}</sub></span> = <span class="variable-k">${k}</span> × <span class="variable-y1">${(y1 * 1e3).toFixed(2)}</span> mm = <span class="variable-yk">${(yk * 1e3).toFixed(2)}</span> mm</p>
-            `;
+                <p><span class="variable-yk">y<sub>k</sub></span> = (<span class="variable-k">k</span> x <span class="variable-lambda">λ</span> × <span class="variable-L">L</span>) / <span class="variable-d">d</span></p>
+                <p><span class="variable-yk">y<sub>k</sub></span> = (<span class="variable-k">${k}</span> x <span class="variable-lambda">${wavelengthValue}</span> × 10<sup>-9</sup> m × <span class="variable-L">${screenDistance.toFixed(2)}</span> m) / (<span class="variable-d">${slitSeparationValue}</span> × 10<sup>-6</sup> m) = <span class="variable-yk">${(yk * 1e3).toFixed(2)}</span> mm</p>
+                `;
             } else {
                 formulaDisplay.innerHTML = `
                 <h2>Distance to the First Minimum</h2>
-                <p><span class="variable-y1">y'<sub>1</sub></span> = (<span class="variable-lambda">λ</span> × <span class="variable-L">L</span>) / (2 × <span class="variable-d">d</span>)</p>
-                <p><span class="variable-y1">y'<sub>1</sub></span> = (<span class="variable-lambda">${wavelengthValue}</span> × 10<sup>-9</sup> m × <span class="variable-L">${screenDistance.toFixed(2)}</span> m) / (2 × <span class="variable-d">${slitSeparationValue}</span> × 10<sup>-6</sup> m) = <span class="variable-y1">${(y1 * 1e3).toFixed(2)}</span> mm</p>
+                <p><span class="variable-y1">y'<sub>1</sub></span> = (0.5 × <span class="variable-lambda">λ</span> × <span class="variable-L">L</span>) / <span class="variable-d">d</span></p>
+                <p><span class="variable-y1">y'<sub>1</sub></span> = (0.5 × <span class="variable-lambda">${wavelengthValue}</span> × 10<sup>-9</sup> m × <span class="variable-L">${screenDistance.toFixed(2)}</span> m) / (<span class="variable-d">${slitSeparationValue}</span> × 10<sup>-6</sup> m) = <span class="variable-y1">${(y1 * 1e3).toFixed(2)}</span> mm</p>
                 <h2>Distance to the k-th Minimum</h2>
-                <p><span class="variable-yk">y'<sub>${k}</sub></span> = (<span class="variable-k">k - 0.5</span>) × <span class="variable-y1">y'<sub>1</sub></span></p>
-                <p><span class="variable-yk">y'<sub>${k}</sub></span> = (<span class="variable-k">${k} - 0.5</span>) × <span class="variable-y1">${(y1 * 1e3).toFixed(2)}</span> mm = <span class="variable-yk">${(yk * 1e3).toFixed(2)}</span> mm</p>
+                <p><span class="variable-yk">y'<sub>k</sub></span> = ((<span class="variable-k">k</span>  - 0.5) x <span class="variable-lambda">λ</span> × <span class="variable-L">L</span>) / <span class="variable-d">d</span></p>
+                <p><span class="variable-yk">y'<sub>${k}</sub></span> = ((<span class="variable-k">${k}</span>  - 0.5) × <span class="variable-lambda">${wavelengthValue}</span> × 10<sup>-9</sup> m × <span class="variable-L">${screenDistance.toFixed(2)}</span> m) / (<span class="variable-d">${slitSeparationValue}</span> × 10<sup>-6</sup> m) = <span class="variable-yk">${(yk * 1e3).toFixed(2)}</span> mm</p>
             `;
             }
         }
