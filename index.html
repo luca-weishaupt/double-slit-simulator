@@ -447,10 +447,18 @@
             ctx.lineTo(slitsX, laserY);
             ctx.stroke();
 
-            // Draw slits
+            // Draw slits with logarithmic scaling
             ctx.fillStyle = 'black';
             const slitWidthVisual = 5;
-            const slitSeparationVisual = Math.max(15, slitSeparation * 1e6 * 1); // Scaled for visualization
+
+            const maxVisualSeparation = 50; // Maximum visual separation in pixels
+            const minVisualSeparation = 15; // Minimum visual separation in pixels
+            const maxSlitSeparation = parseFloat(slitSeparationSlider.max) * 1e-6; // Max slit separation in meters
+            const minSlitSeparation = parseFloat(slitSeparationSlider.min) * 1e-6; // Min slit separation in meters
+
+            // Use logarithmic scaling
+            const normalizedSeparation = (Math.log(slitSeparation) - Math.log(minSlitSeparation)) / (Math.log(maxSlitSeparation) - Math.log(minSlitSeparation));
+            const slitSeparationVisual = minVisualSeparation + (maxVisualSeparation - minVisualSeparation) * normalizedSeparation;
 
             ctx.fillRect(slitsX - slitWidthVisual / 2, laserY - 50, slitWidthVisual, 100);
 
